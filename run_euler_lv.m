@@ -30,9 +30,9 @@ h = 0.1;
 total_years = years(end) - years(1);
 N = round(total_years/h);
 
-% LV RHS (defined once and reused by both methods)
-f1 = @(x,y) alpha*x - beta*x*y;   % dx/dt
-f2 = @(x,y) delta*x*y - gamma*y;  % dy/dt
+% LV RHS (defined once and reused by all methods)
+f1 = @(t,y1,y2) alpha*y1 - beta*y1*y2;   % dx/dt
+f2 = @(t,y1,y2) delta*y1*y2 - gamma*y2;  % dy/dt
 
 % Storage: Explicit Euler
 x_euler = zeros(N+1,1);  % Hares
@@ -44,8 +44,9 @@ y_euler(1) = 7.13;
 
 % Explicit Euler
 for n = 1:N
-    x_euler(n+1) = x_euler(n) + h*f1(x_euler(n), y_euler(n));
-    y_euler(n+1) = y_euler(n) + h*f2(x_euler(n), y_euler(n));
+    t_n = (n-1)*h;
+    x_euler(n+1) = x_euler(n) + h*f1(t_n, x_euler(n), y_euler(n));
+    y_euler(n+1) = y_euler(n) + h*f2(t_n, x_euler(n), y_euler(n));
 end
 
 % Storage: Modified Euler / Heun
@@ -58,11 +59,42 @@ y_heun(1) = 7.13;
 
 % Modified Euler / Heun
 for n = 1:N
-    x_tilde = x_heun(n) + h*f1(x_heun(n), y_heun(n));
-    y_tilde = y_heun(n) + h*f2(x_heun(n), y_heun(n));
+    t_n = (n-1)*h;
+    x_tilde = x_heun(n) + h*f1(t_n, x_heun(n), y_heun(n));
+    y_tilde = y_heun(n) + h*f2(t_n, x_heun(n), y_heun(n));
 
-    x_heun(n+1) = x_heun(n) + (h/2)*(f1(x_heun(n), y_heun(n)) + f1(x_tilde, y_tilde));
-    y_heun(n+1) = y_heun(n) + (h/2)*(f2(x_heun(n), y_heun(n)) + f2(x_tilde, y_tilde));
+    x_heun(n+1) = x_heun(n) + (h/2)*(f1(t_n, x_heun(n), y_heun(n)) + f1(t_n+h, x_tilde, y_tilde));
+    y_heun(n+1) = y_heun(n) + (h/2)*(f2(t_n, x_heun(n), y_heun(n)) + f2(t_n+h, x_tilde, y_tilde));
+end
+
+% Storage: RK4
+x_rk4 = zeros(N+1,1);  % Hares
+y_rk4 = zeros(N+1,1);  % Lynx
+
+% Initial values (year 1900)
+x_rk4(1) = 12.82;
+y_rk4(1) = 7.13;
+
+% RK4
+for n = 1:N
+    t_n = (n-1)*h;
+    y1 = x_rk4(n);
+    y2 = y_rk4(n);
+
+    k1_1 = h * f1(t_n, y1, y2);
+    k1_2 = h * f2(t_n, y1, y2);
+
+    k2_1 = h * f1(t_n + h/2, y1 + k1_1/2, y2 + k1_2/2);
+    k2_2 = h * f2(t_n + h/2, y1 + k1_1/2, y2 + k1_2/2);
+
+    k3_1 = h * f1(t_n + h/2, y1 + k2_1/2, y2 + k2_2/2);
+    k3_2 = h * f2(t_n + h/2, y1 + k2_1/2, y2 + k2_2/2);
+
+    k4_1 = h * f1(t_n + h, y1 + k3_1, y2 + k3_2);
+    k4_2 = h * f2(t_n + h, y1 + k3_1, y2 + k3_2);
+
+    x_rk4(n+1) = y1 + (k1_1 + 2*k2_1 + 2*k3_1 + k4_1)/6;
+    y_rk4(n+1) = y2 + (k1_2 + 2*k2_2 + 2*k3_2 + k4_2)/6;
 end
 
 % Sample both methods at each year (0,1,2,...,35)
@@ -73,15 +105,17 @@ hare_euler_yearly = x_euler(year_idx);
 lynx_euler_yearly = y_euler(year_idx);
 hare_heun_yearly  = x_heun(year_idx);
 lynx_heun_yearly  = y_heun(year_idx);
+hare_rk4_yearly   = x_rk4(year_idx);
+lynx_rk4_yearly   = y_rk4(year_idx);
 
-% Display combined comparison table (paper -> Euler -> modified Euler)
+% Display combined comparison table
 fprintf('Lotka-Volterra Comparison (h = %.1f)\n', h);
-fprintf('Order shown: paper value, Euler value, modified Euler value\n\n');
+fprintf('Order shown: paper value, Euler value, modified Euler value, RK4 value\n\n');
 
-fprintf(' Year   Hare_paper   Hare_euler   Hare_modified_euler   Lynx_paper   Lynx_euler   Lynx_modified_euler\n');
-fprintf('--------------------------------------------------------------------------------------------------------\n');
+fprintf(' Year   Hare_paper   Hare_euler   Hare_modified_euler   Hare_rk4   Lynx_paper   Lynx_euler   Lynx_modified_euler   Lynx_rk4\n');
+fprintf('--------------------------------------------------------------------------------------------------------------------------------\n');
 for i = 1:length(years)
-    fprintf('%4d   %10.2f   %10.4f   %19.4f   %10.2f   %10.4f   %19.4f\n', ...
-        years(i), hares_obs(i), hare_euler_yearly(i), hare_heun_yearly(i), ...
-        lynx_obs(i), lynx_euler_yearly(i), lynx_heun_yearly(i));
+    fprintf('%4d   %10.2f   %10.4f   %19.4f   %9.4f   %10.2f   %10.4f   %19.4f   %9.4f\n', ...
+        years(i), hares_obs(i), hare_euler_yearly(i), hare_heun_yearly(i), hare_rk4_yearly(i), ...
+        lynx_obs(i), lynx_euler_yearly(i), lynx_heun_yearly(i), lynx_rk4_yearly(i));
 end
