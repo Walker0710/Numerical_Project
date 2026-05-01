@@ -30,39 +30,58 @@ h = 0.1;
 total_years = years(end) - years(1);
 N = round(total_years/h);
 
-% Storage
-x = zeros(N+1,1);  % Hares
-y = zeros(N+1,1);  % Lynx
+% LV RHS (defined once and reused by both methods)
+f1 = @(x,y) alpha*x - beta*x*y;   % dx/dt
+f2 = @(x,y) delta*x*y - gamma*y;  % dy/dt
+
+% Storage: Explicit Euler
+x_euler = zeros(N+1,1);  % Hares
+y_euler = zeros(N+1,1);  % Lynx
 
 % Initial values (year 1900)
-x(1) = 12.82;
-y(1) = 7.13;
+x_euler(1) = 12.82;
+y_euler(1) = 7.13;
 
-% Explicit Euler loop
+% Explicit Euler
 for n = 1:N
-    x(n+1) = x(n) + h*(alpha*x(n) - beta*x(n)*y(n));
-    y(n+1) = y(n) + h*(delta*x(n)*y(n) - gamma*y(n));
+    x_euler(n+1) = x_euler(n) + h*f1(x_euler(n), y_euler(n));
+    y_euler(n+1) = y_euler(n) + h*f2(x_euler(n), y_euler(n));
 end
 
-% Sample Euler solution at each year (0,1,2,...,35)
+% Storage: Modified Euler / Heun
+x_heun = zeros(N+1,1);  % Hares
+y_heun = zeros(N+1,1);  % Lynx
+
+% Initial values (year 1900)
+x_heun(1) = 12.82;
+y_heun(1) = 7.13;
+
+% Modified Euler / Heun
+for n = 1:N
+    x_tilde = x_heun(n) + h*f1(x_heun(n), y_heun(n));
+    y_tilde = y_heun(n) + h*f2(x_heun(n), y_heun(n));
+
+    x_heun(n+1) = x_heun(n) + (h/2)*(f1(x_heun(n), y_heun(n)) + f1(x_tilde, y_tilde));
+    y_heun(n+1) = y_heun(n) + (h/2)*(f2(x_heun(n), y_heun(n)) + f2(x_tilde, y_tilde));
+end
+
+% Sample both methods at each year (0,1,2,...,35)
 steps_per_year = round(1/h);
 year_idx = 1:steps_per_year:(N+1);
 
-hares_euler_yearly = x(year_idx);
-lynx_euler_yearly  = y(year_idx);
+hare_euler_yearly = x_euler(year_idx);
+lynx_euler_yearly = y_euler(year_idx);
+hare_heun_yearly  = x_heun(year_idx);
+lynx_heun_yearly  = y_heun(year_idx);
 
-% Error metrics vs paper data
-rmse_hares = sqrt(mean((hares_euler_yearly - hares_obs).^2));
-rmse_lynx  = sqrt(mean((lynx_euler_yearly - lynx_obs).^2));
+% Display combined comparison table (paper -> Euler -> modified Euler)
+fprintf('Lotka-Volterra Comparison (h = %.1f)\n', h);
+fprintf('Order shown: paper value, Euler value, modified Euler value\n\n');
 
-% Display results
-fprintf('Explicit Euler (h = %.1f) using paper Eq. (12) parameters\n', h);
-fprintf('RMSE Hares = %.4f\n', rmse_hares);
-fprintf('RMSE Lynx  = %.4f\n\n', rmse_lynx);
-
-fprintf(' Year   Hare_obs   Hare_euler   Lynx_obs   Lynx_euler\n');
-fprintf('-------------------------------------------------------\n');
+fprintf(' Year   Hare_paper   Hare_euler   Hare_modified_euler   Lynx_paper   Lynx_euler   Lynx_modified_euler\n');
+fprintf('--------------------------------------------------------------------------------------------------------\n');
 for i = 1:length(years)
-    fprintf('%4d   %8.2f   %10.4f   %8.2f   %10.4f\n', ...
-        years(i), hares_obs(i), hares_euler_yearly(i), lynx_obs(i), lynx_euler_yearly(i));
+    fprintf('%4d   %10.2f   %10.4f   %19.4f   %10.2f   %10.4f   %19.4f\n', ...
+        years(i), hares_obs(i), hare_euler_yearly(i), hare_heun_yearly(i), ...
+        lynx_obs(i), lynx_euler_yearly(i), lynx_heun_yearly(i));
 end
