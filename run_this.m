@@ -201,3 +201,106 @@ fprintf(' Euler                  %9.4f   %9.4f\n', rmse_hare_euler, rmse_lynx_eu
 fprintf(' Modified Euler (Heun)  %9.4f   %9.4f\n', rmse_hare_heun, rmse_lynx_heun);
 fprintf(' RK4                    %9.4f   %9.4f\n', rmse_hare_rk4, rmse_lynx_rk4);
 fprintf(' AB4-AM4                %9.4f   %9.4f\n', rmse_hare_abm, rmse_lynx_abm);
+
+%% Plotting
+
+% 1. Paper vs Euler
+figure('Name', 'Paper vs Euler', 'NumberTitle', 'off');
+subplot(2,1,1);
+plot(years, hares_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, hare_euler_yearly, 'b-*', 'LineWidth', 1.5);
+title('Hare Population: Paper vs Euler');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'Euler');
+grid on;
+
+subplot(2,1,2);
+plot(years, lynx_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, lynx_euler_yearly, 'r-*', 'LineWidth', 1.5);
+title('Lynx Population: Paper vs Euler');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'Euler');
+grid on;
+saveas(gcf, 'plot1_paper_vs_euler.png');
+
+% 2. Paper vs Modified Euler (Heun)
+figure('Name', 'Paper vs Modified Euler', 'NumberTitle', 'off');
+subplot(2,1,1);
+plot(years, hares_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, hare_heun_yearly, 'b-s', 'LineWidth', 1.5);
+title('Hare Population: Paper vs Modified Euler');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'Modified Euler');
+grid on;
+
+subplot(2,1,2);
+plot(years, lynx_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, lynx_heun_yearly, 'r-s', 'LineWidth', 1.5);
+title('Lynx Population: Paper vs Modified Euler');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'Modified Euler');
+grid on;
+saveas(gcf, 'plot2_paper_vs_modified_euler.png');
+
+% 3. Paper vs RK4
+figure('Name', 'Paper vs RK4', 'NumberTitle', 'off');
+subplot(2,1,1);
+plot(years, hares_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, hare_rk4_yearly, 'b-^', 'LineWidth', 1.5);
+title('Hare Population: Paper vs RK4');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'RK4');
+grid on;
+
+subplot(2,1,2);
+plot(years, lynx_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, lynx_rk4_yearly, 'r-^', 'LineWidth', 1.5);
+title('Lynx Population: Paper vs RK4');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'RK4');
+grid on;
+saveas(gcf, 'plot3_paper_vs_rk4.png');
+
+% 4. Paper vs AB4-AM4
+figure('Name', 'Paper vs AB4-AM4', 'NumberTitle', 'off');
+subplot(2,1,1);
+plot(years, hares_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, hare_abm_yearly, 'b-d', 'LineWidth', 1.5);
+title('Hare Population: Paper vs AB4-AM4');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'AB4-AM4');
+grid on;
+
+subplot(2,1,2);
+plot(years, lynx_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, lynx_abm_yearly, 'r-d', 'LineWidth', 1.5);
+title('Lynx Population: Paper vs AB4-AM4');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'AB4-AM4');
+grid on;
+saveas(gcf, 'plot4_paper_vs_ab4_am4.png');
+
+% 5. Paper vs All Methods
+figure('Name', 'Paper vs All Methods', 'NumberTitle', 'off');
+subplot(2,1,1);
+plot(years, hares_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, hare_euler_yearly, 'b-*', 'LineWidth', 1.5);
+plot(years, hare_heun_yearly, 'g-s', 'LineWidth', 1.5);
+plot(years, hare_rk4_yearly, 'm-^', 'LineWidth', 1.5);
+plot(years, hare_abm_yearly, 'c-d', 'LineWidth', 1.5);
+title('Hare Population: All Methods vs Paper');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed', 'Euler', 'Modified Euler', 'RK4', 'AB4-AM4', 'Location', 'best');
+grid on;
+
+subplot(2,1,2);
+plot(years, lynx_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, lynx_euler_yearly, 'b-*', 'LineWidth', 1.5);
+plot(years, lynx_heun_yearly, 'g-s', 'LineWidth', 1.5);
+plot(years, lynx_rk4_yearly, 'm-^', 'LineWidth', 1.5);
+plot(years, lynx_abm_yearly, 'c-d', 'LineWidth', 1.5);
+title('Lynx Population: All Methods vs Paper');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed', 'Euler', 'Modified Euler', 'RK4', 'AB4-AM4', 'Location', 'best');
+grid on;
+saveas(gcf, 'plot5_paper_vs_all_methods.png');
