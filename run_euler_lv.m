@@ -97,6 +97,63 @@ for n = 1:N
     y_rk4(n+1) = y2 + (k1_2 + 2*k2_2 + 2*k3_2 + k4_2)/6;
 end
 
+% Storage: AB4-AM4 Predictor-Corrector (single corrector)
+x_abm = zeros(N+1,1);  % Hares
+y_abm = zeros(N+1,1);  % Lynx
+
+% Initial values (year 1900)
+x_abm(1) = 12.82;
+y_abm(1) = 7.13;
+
+% Startup: RK4 for first 3 steps
+for n = 1:3
+    t_n = (n-1)*h;
+    y1 = x_abm(n);
+    y2 = y_abm(n);
+
+    k1_1 = h * f1(t_n, y1, y2);
+    k1_2 = h * f2(t_n, y1, y2);
+
+    k2_1 = h * f1(t_n + h/2, y1 + k1_1/2, y2 + k1_2/2);
+    k2_2 = h * f2(t_n + h/2, y1 + k1_1/2, y2 + k1_2/2);
+
+    k3_1 = h * f1(t_n + h/2, y1 + k2_1/2, y2 + k2_2/2);
+    k3_2 = h * f2(t_n + h/2, y1 + k2_1/2, y2 + k2_2/2);
+
+    k4_1 = h * f1(t_n + h, y1 + k3_1, y2 + k3_2);
+    k4_2 = h * f2(t_n + h, y1 + k3_1, y2 + k3_2);
+
+    x_abm(n+1) = y1 + (k1_1 + 2*k2_1 + 2*k3_1 + k4_1)/6;
+    y_abm(n+1) = y2 + (k1_2 + 2*k2_2 + 2*k3_2 + k4_2)/6;
+end
+
+% AB4 predictor + AM4 corrector (single pass)
+for n = 4:N
+    t_n = (n-1)*h;
+    t_nm1 = (n-2)*h;
+    t_nm2 = (n-3)*h;
+    t_nm3 = (n-4)*h;
+    t_np1 = n*h;
+
+    f1_n   = f1(t_n,   x_abm(n),   y_abm(n));
+    f1_nm1 = f1(t_nm1, x_abm(n-1), y_abm(n-1));
+    f1_nm2 = f1(t_nm2, x_abm(n-2), y_abm(n-2));
+    f1_nm3 = f1(t_nm3, x_abm(n-3), y_abm(n-3));
+
+    f2_n   = f2(t_n,   x_abm(n),   y_abm(n));
+    f2_nm1 = f2(t_nm1, x_abm(n-1), y_abm(n-1));
+    f2_nm2 = f2(t_nm2, x_abm(n-2), y_abm(n-2));
+    f2_nm3 = f2(t_nm3, x_abm(n-3), y_abm(n-3));
+
+    % Predictor (AB4)
+    x_pred = x_abm(n) + (h/24)*(55*f1_n - 59*f1_nm1 + 37*f1_nm2 - 9*f1_nm3);
+    y_pred = y_abm(n) + (h/24)*(55*f2_n - 59*f2_nm1 + 37*f2_nm2 - 9*f2_nm3);
+
+    % Corrector (AM4, single pass)
+    x_abm(n+1) = x_abm(n) + (h/24)*(9*f1(t_np1, x_pred, y_pred) + 19*f1_n - 5*f1_nm1 + f1_nm2);
+    y_abm(n+1) = y_abm(n) + (h/24)*(9*f2(t_np1, x_pred, y_pred) + 19*f2_n - 5*f2_nm1 + f2_nm2);
+end
+
 % Sample both methods at each year (0,1,2,...,35)
 steps_per_year = round(1/h);
 year_idx = 1:steps_per_year:(N+1);
@@ -107,15 +164,17 @@ hare_heun_yearly  = x_heun(year_idx);
 lynx_heun_yearly  = y_heun(year_idx);
 hare_rk4_yearly   = x_rk4(year_idx);
 lynx_rk4_yearly   = y_rk4(year_idx);
+hare_abm_yearly   = x_abm(year_idx);
+lynx_abm_yearly   = y_abm(year_idx);
 
 % Display combined comparison table
 fprintf('Lotka-Volterra Comparison (h = %.1f)\n', h);
-fprintf('Order shown: paper value, Euler value, modified Euler value, RK4 value\n\n');
+fprintf('Order shown: paper value, Euler value, modified Euler value, RK4 value, ABM value\n\n');
 
-fprintf(' Year   Hare_paper   Hare_euler   Hare_modified_euler   Hare_rk4   Lynx_paper   Lynx_euler   Lynx_modified_euler   Lynx_rk4\n');
-fprintf('--------------------------------------------------------------------------------------------------------------------------------\n');
+fprintf(' Year   Hare_paper   Hare_euler   Hare_modified_euler   Hare_rk4   Hare_abm   Lynx_paper   Lynx_euler   Lynx_modified_euler   Lynx_rk4   Lynx_abm\n');
+fprintf('----------------------------------------------------------------------------------------------------------------------------------------------------------\n');
 for i = 1:length(years)
-    fprintf('%4d   %10.2f   %10.4f   %19.4f   %9.4f   %10.2f   %10.4f   %19.4f   %9.4f\n', ...
-        years(i), hares_obs(i), hare_euler_yearly(i), hare_heun_yearly(i), hare_rk4_yearly(i), ...
-        lynx_obs(i), lynx_euler_yearly(i), lynx_heun_yearly(i), lynx_rk4_yearly(i));
+    fprintf('%4d   %10.2f   %10.4f   %19.4f   %9.4f   %8.4f   %10.2f   %10.4f   %19.4f   %9.4f   %8.4f\n', ...
+        years(i), hares_obs(i), hare_euler_yearly(i), hare_heun_yearly(i), hare_rk4_yearly(i), hare_abm_yearly(i), ...
+        lynx_obs(i), lynx_euler_yearly(i), lynx_heun_yearly(i), lynx_rk4_yearly(i), lynx_abm_yearly(i));
 end
