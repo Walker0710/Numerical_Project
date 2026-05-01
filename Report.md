@@ -24,11 +24,9 @@ Using an optimization algorithm called Simulated Annealing, the paper found the 
 $\alpha = 0.6923$, $\beta = 0.0333$, $\gamma = 0.7627$, $\delta = 0.02684$.
 
 ## How the Paper Solved It
-Because these equations are "non-linear" (they multiply $x$ and $y$ together), you can't just solve them with a simple high-school algebra formula. 
-
 The paper tackled this complexity in two ways:
 1. **Analytically (The Ritz Method):** They used an advanced approximation technique to find a closed-loop, elliptical formula that roughly describes the waves. It's great for understanding the theory and proving that the cycle repeats, but it struggles to capture sharp, realistic changes in the wild.
-2. **Numerically (Runge-Kutta 4):** They used computers to calculate the populations step-by-step over time. This method is incredibly accurate and forms the basis for how we simulate complex chaotic systems today.
+2. **Numerically (Runge-Kutta 4):** This method is incredibly accurate and forms the basis for how we simulate complex chaotic systems today.
 
 In our project, we took the numerical approach much further by implementing and comparing five different computational methods to see which one performs best against the real historical data!
 
