@@ -167,6 +167,12 @@ lynx_rk4_yearly   = y_rk4(year_idx);
 hare_abm_yearly   = x_abm(year_idx);
 lynx_abm_yearly   = y_abm(year_idx);
 
+% Storage: ODE45
+f_ode45 = @(t, Y) [alpha*Y(1) - beta*Y(1)*Y(2); delta*Y(1)*Y(2) - gamma*Y(2)];
+[~, Y_ode45] = ode45(f_ode45, years, [12.82; 7.13]);
+hare_ode45_yearly = Y_ode45(:,1);
+lynx_ode45_yearly = Y_ode45(:,2);
+
 % RMSE for each method
 rmse_hare_euler = sqrt(mean((hare_euler_yearly - hares_obs).^2));
 rmse_lynx_euler = sqrt(mean((lynx_euler_yearly - lynx_obs).^2));
@@ -180,16 +186,19 @@ rmse_lynx_rk4 = sqrt(mean((lynx_rk4_yearly - lynx_obs).^2));
 rmse_hare_abm = sqrt(mean((hare_abm_yearly - hares_obs).^2));
 rmse_lynx_abm = sqrt(mean((lynx_abm_yearly - lynx_obs).^2));
 
+rmse_hare_ode45 = sqrt(mean((hare_ode45_yearly - hares_obs).^2));
+rmse_lynx_ode45 = sqrt(mean((lynx_ode45_yearly - lynx_obs).^2));
+
 % Display combined comparison table
 fprintf('Lotka-Volterra Comparison (h = %.1f)\n', h);
-fprintf('Order shown: paper value, Euler value, modified Euler value, RK4 value, ABM value\n\n');
+fprintf('Order shown: paper value, Euler value, modified Euler value, RK4 value, ABM value, ODE45 value\n\n');
 
-fprintf(' Year   Hare_paper   Hare_euler   Hare_modified_euler   Hare_rk4   Hare_abm   Lynx_paper   Lynx_euler   Lynx_modified_euler   Lynx_rk4   Lynx_abm\n');
-fprintf('----------------------------------------------------------------------------------------------------------------------------------------------------------\n');
+fprintf(' Year   Hare_paper   Hare_euler   Hare_modified_euler   Hare_rk4   Hare_abm   Hare_ode45   Lynx_paper   Lynx_euler   Lynx_modified_euler   Lynx_rk4   Lynx_abm   Lynx_ode45\n');
+fprintf('--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n');
 for i = 1:length(years)
-    fprintf('%4d   %10.2f   %10.4f   %19.4f   %9.4f   %8.4f   %10.2f   %10.4f   %19.4f   %9.4f   %8.4f\n', ...
-        years(i), hares_obs(i), hare_euler_yearly(i), hare_heun_yearly(i), hare_rk4_yearly(i), hare_abm_yearly(i), ...
-        lynx_obs(i), lynx_euler_yearly(i), lynx_heun_yearly(i), lynx_rk4_yearly(i), lynx_abm_yearly(i));
+    fprintf('%4d   %10.2f   %10.4f   %19.4f   %9.4f   %8.4f   %10.4f   %10.2f   %10.4f   %19.4f   %9.4f   %8.4f   %10.4f\n', ...
+        years(i), hares_obs(i), hare_euler_yearly(i), hare_heun_yearly(i), hare_rk4_yearly(i), hare_abm_yearly(i), hare_ode45_yearly(i), ...
+        lynx_obs(i), lynx_euler_yearly(i), lynx_heun_yearly(i), lynx_rk4_yearly(i), lynx_abm_yearly(i), lynx_ode45_yearly(i));
 end
 
 % Separate RMSE comparison table
@@ -201,6 +210,7 @@ fprintf(' Euler                  %9.4f   %9.4f\n', rmse_hare_euler, rmse_lynx_eu
 fprintf(' Modified Euler (Heun)  %9.4f   %9.4f\n', rmse_hare_heun, rmse_lynx_heun);
 fprintf(' RK4                    %9.4f   %9.4f\n', rmse_hare_rk4, rmse_lynx_rk4);
 fprintf(' AB4-AM4                %9.4f   %9.4f\n', rmse_hare_abm, rmse_lynx_abm);
+fprintf(' ODE45                  %9.4f   %9.4f\n', rmse_hare_ode45, rmse_lynx_ode45);
 
 %% Plotting
 
@@ -280,7 +290,26 @@ legend('Observed (Paper)', 'AB4-AM4');
 grid on;
 saveas(gcf, 'plot4_paper_vs_ab4_am4.png');
 
-% 5. Paper vs All Methods
+% 5. Paper vs ODE45
+figure('Name', 'Paper vs ODE45', 'NumberTitle', 'off');
+subplot(2,1,1);
+plot(years, hares_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, hare_ode45_yearly, 'b-p', 'LineWidth', 1.5);
+title('Hare Population: Paper vs ODE45');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'ODE45');
+grid on;
+
+subplot(2,1,2);
+plot(years, lynx_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(years, lynx_ode45_yearly, 'r-p', 'LineWidth', 1.5);
+title('Lynx Population: Paper vs ODE45');
+xlabel('Year'); ylabel('Population (thousands)');
+legend('Observed (Paper)', 'ODE45');
+grid on;
+saveas(gcf, 'plot5_paper_vs_ode45.png');
+
+% 6. Paper vs All Methods
 figure('Name', 'Paper vs All Methods', 'NumberTitle', 'off');
 subplot(2,1,1);
 plot(years, hares_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
@@ -288,9 +317,10 @@ plot(years, hare_euler_yearly, 'b-*', 'LineWidth', 1.5);
 plot(years, hare_heun_yearly, 'g-s', 'LineWidth', 1.5);
 plot(years, hare_rk4_yearly, 'm-^', 'LineWidth', 1.5);
 plot(years, hare_abm_yearly, 'c-d', 'LineWidth', 1.5);
+plot(years, hare_ode45_yearly, 'y-p', 'LineWidth', 1.5);
 title('Hare Population: All Methods vs Paper');
 xlabel('Year'); ylabel('Population (thousands)');
-legend('Observed', 'Euler', 'Modified Euler', 'RK4', 'AB4-AM4', 'Location', 'best');
+legend('Observed', 'Euler', 'Modified Euler', 'RK4', 'AB4-AM4', 'ODE45', 'Location', 'best');
 grid on;
 
 subplot(2,1,2);
@@ -299,8 +329,9 @@ plot(years, lynx_euler_yearly, 'b-*', 'LineWidth', 1.5);
 plot(years, lynx_heun_yearly, 'g-s', 'LineWidth', 1.5);
 plot(years, lynx_rk4_yearly, 'm-^', 'LineWidth', 1.5);
 plot(years, lynx_abm_yearly, 'c-d', 'LineWidth', 1.5);
+plot(years, lynx_ode45_yearly, 'y-p', 'LineWidth', 1.5);
 title('Lynx Population: All Methods vs Paper');
 xlabel('Year'); ylabel('Population (thousands)');
-legend('Observed', 'Euler', 'Modified Euler', 'RK4', 'AB4-AM4', 'Location', 'best');
+legend('Observed', 'Euler', 'Modified Euler', 'RK4', 'AB4-AM4', 'ODE45', 'Location', 'best');
 grid on;
-saveas(gcf, 'plot5_paper_vs_all_methods.png');
+saveas(gcf, 'plot6_paper_vs_all_methods.png');
