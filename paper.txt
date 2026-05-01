@@ -1,0 +1,1000 @@
+Everest Advances in Science and Technology (EAST), Vol. 1, No. 1, 2025
+ISSN: 3102-0410(print), 3102-0429(online)
+
+Numerical Solutions of Non-Linear Systems of
+ODES: Lotka–Volterra Predator–Prey Model
+NARAYAN SAPKOTA1,2∗ , KHIM B. KHATTRI 2
+Abstract. This study investigates the dynamic behavior of predator–prey interactions
+using the classical Lotka–Volterra system of nonlinear ordinary differential equations.
+We employ both analytical and numerical techniques to analyze population fluctuations
+of hares and lynx, based on historical Hudson Bay Company records. An approximate
+analytical solution is derived using the Ritz method, while a numerical solution is obtained via the fourth-order Runge–Kutta (RK4) method. To enhance model realism,
+we estimate system parameters (α, β, γ, δ) using Simulated Annealing (SA), a global
+optimization technique well-suited for non-convex landscapes. The model is calibrated
+against empirical data, and SA-based optimization achieved mean RMSE values of 4.12
+for hares and 4.01 for lynx across five independent runs. Comparative plots between
+observed and predicted populations confirm the model’s ability to capture oscillatory
+behavior and phase shifts. This work compares analytical and numerical solution methods for the Lotka–Volterra system using parameters estimated via Simulated Annealing,
+demonstrating the relative strengths of the Ritz and Runge–Kutta approaches in modeling real-world population dynamics.
+Keywords: Lotka–Volterra Model, Nonlinear Ordinary Differential Equations, Ritz
+method, Runge-Kutta method, Simulated Annealing.
+
+1
+
+Department of Computer Engineering, Everest Engineering College, Nepal
+E-mail: narayan sapkota@outlook.com
+2
+Department of Mathematics, School of Science, Kathmandu University, Nepal
+E-mail: khimkhattri@ku.edu.np
+∗
+Corresponding author
+Manuscript received: 19 July, 2025; revised: 13 August 2025; accepted: 5 September, 2025.
+Everest Advances in Science and Technology (EAST), Vol. 1, No. 1, 2025
+© Everest Engineering College, 2025; all rights reserved.
+101
+
+Everest Advances in Science and Technology (EAST). V.01, N.1, 2025
+
+ISSN: 3102-0410(print), 3102-0429(online)
+
+1. Introduction
+The Lotka–Volterra predator–prey model stands as a foundational framework in the study
+of nonlinear dynamical systems, originally developed to describe ecological interactions between predator and prey populations [18, 27]. This model captures the cyclical nature of
+population dynamics through a system of first-order nonlinear differential equations, assuming that prey populations grow exponentially in the absence of predators, while predator populations decline without prey. Their interaction introduces a regulatory feedback
+mechanism that leads to oscillatory behavior in both species [12]. Due to its simplicity
+and interpretability, the Lotka–Volterra model has been extensively studied and applied
+across a wide range of disciplines. In theoretical ecology, it offers insights into species
+interactions such as wolves and rabbits in terrestrial ecosystems or bass and redear fish
+in aquatic environments [7]. It has also been used in conservation biology to simulate
+intervention scenarios, including predator control and endangered species management.
+Beyond ecology, the model has found applications in fields such as epidemiology, where it
+helps simulate interactions between hosts and vectors in diseases like malaria and dengue
+fever [2, 11]. In economics, it has been adapted to describe competitive market dynamics where firms compete for market dominance, mimicking predator–prey relationships
+in terms of resource or customer share [19, 28]. The model also extends to engineering
+systems such as power grids and communication networks, where it describes the balance
+between supply and demand or the flow of competing data packets [25, 3, 26]. In cell biology and immunology, predator–prey analogues represent virus-infected cells and immune
+responses, contributing to the understanding of infection dynamics and therapeutic design
+[10, 21]. Social sciences and artificial intelligence have further leveraged Lotka–Volterra
+frameworks to simulate cultural interactions, ideological shifts, and the dynamics of neural networks [17, 22]. Despite its versatility, the classical Lotka–Volterra model presents
+analytical challenges due to its inherent nonlinearity. While qualitative analysis using
+phase plane methods and stability theory provides insight into equilibrium behavior [1],
+closed-form solutions are rarely available, especially under realistic ecological conditions
+involving stochasticity, migration, or environmental constraints [11]. Consequently, numerical approximation methods such as Euler’s method and Runge–Kutta schemes have
+become essential tools for exploring these systems [13].
+This study focuses on evaluating the Lotka–Volterra system using both analytical and numerical strategies. We begin with an approximate analytical solution via the Ritz method,
+highlighting its utility and limitations in capturing the system’s inherent oscillations [29].
+We then implement a fourth-order Runge–Kutta (RK4) method to numerically simulate
+population dynamics over time. To align the model with real-world observations, we perform parameter estimation using Simulated Annealing—a global optimization algorithm
+well-suited for nonlinear systems with complex error surfaces. The model is calibrated
+against historical lynx–hare data from the Hudson Bay Company, and predictive accuracy is evaluated using root mean square error (RMSE). Finally, we analyze the system’s
+long-term behavior through phase portraits and discuss the broader applicability of the
+approach in ecological modeling and interdisciplinary research.
+
+2. Lotka–Volterra Model
+2.1. Mathematical Formulation. The Lotka–Volterra predator-prey model [7, 1, 29] is
+governed by the following system of two nonlinear ODEs:
+102
+
+Sapkota and Khattri: Numerical Solutions of Non-Linear Systems of ODES...
+(
+
+dx
+dt = αx(t) − βx(t)y(t)
+dy
+dt = δx(t)y(t) − γy(t)
+
+(1)
+
+where:
+• x(t) represents the prey population at time t,
+• y(t) represents the predator population at time t,
+• α is the growth rate of the prey in the absence of predators,
+• β is the predation rate, describing how often predators catch prey,
+• δ is the rate at which predators reproduce based on the availability of prey,
+• γ is the death rate of the predators in the absence of food (prey).
+The constants α, β, δ and γ are all positive. When the predator is absent, the prey population grows at a rate proportional to its current population. This is described by the
+equation dx
+dt = αx(t) and y(t) = 0. Similarly, in the absence of the prey, the predator
+population declines, with the rate of change given by dy
+dt = −γy(t) and x(t) = 0.
+Experimental studies have documented numerous prey-predator interactions that closely
+resemble the dynamics predicted by the Lotka–Volterra model. These investigations have
+examined different species pairs, including the Canada lynx and snowshoe hare [14], as
+well as moose and wolf populations in Isle Royale National Park [16] and more examples
+can be found on [29].
+Prey Growth
+
+Predator Growth
+
+α
+Prey (x)
+
+δ
+β
+
+Predator (y)
+γ
+Predator Death
+
+Figure 1. Schematic representation of the Lotka–Volterra predator–prey
+model showing growth, interaction, and death rates.
+2.1.1. Biological Interpretation and Model Assumptions. The prey are assumed to have an
+unlimited food supply and reproduce exponentially, except when preyed upon. This exponential growth is represented in Equation (1) by the term αx. The rate of predation on
+the prey is assumed to be proportional to the rate at which predators and prey encounter
+one another, represented by βxy. If either x or y is zero, no predation occurs. Hence, the
+prey equation in Equation (1) describes the rate of change of the prey population as its
+growth rate minus the predation rate. The term δxy represents the growth of the predator
+population, which is proportional to the number of prey consumed. The predator growth
+rate differs from the predation rate, which is why a different constant is used. The term
+γy represents the predator mortality rate, encompassing natural death or emigration. In
+the absence of prey, this leads to exponential decay. Therefore, the predator equation in
+Equation (1) expresses the rate of change of the predator population as the predation rate
+minus its intrinsic death rate.
+103
+
+Everest Advances in Science and Technology (EAST). V.01, N.1, 2025
+
+ISSN: 3102-0410(print), 3102-0429(online)
+
+The Lotka–Volterra predator-prey model makes several assumptions about the environment and the biology of the populations [7], [29], [6]:
+• The prey population has an unlimited food supply at all times.
+• The predator population’s food supply depends entirely on the prey population.
+• The rate of population change is proportional to the population size.
+• Environmental factors do not favor one species over the other, and genetic adaptation does not play a significant role during the modeling period.
+• Predators have an unlimited appetite.
+• Both populations are modeled as a single variable, implying that spatial or age
+distribution does not influence population dynamics.
+
+2.1.2. Significance of the Model in Real-World Applications. The Lotka–Volterra model
+serves as a foundational framework in ecology, particularly for understanding the dynamics between interacting species in an ecosystem. It illustrates how changes in the
+population of one species affect the other, showing the cyclical nature of predator-prey
+dynamics: increases in prey populations lead to higher predator populations, which then
+reduce the prey population, causing a subsequent decline in predators. In ecology, the
+model is commonly applied to species such as predators (e.g., wolves) and prey (e.g., rabbits). It can also be used to simulate various scenarios, such as conservation efforts or
+managing endangered species. The model can be extended to include factors like environmental carrying capacity, external predation pressures, migration, or disease, all of which
+are nonlinear and complicate the model’s analytical solutions.
+Beyond ecology, the Lotka-Volterra model has been extensively adapted to describe a wide
+range of systems across various disciplines. In epidemiology, the model is used to simulate
+interactions between disease-carrying organisms, such as mosquitoes, and the spread of
+infections. A prominent application is in the study of vector-borne diseases, where interactions between mosquito populations (the vectors) and human populations (the hosts)
+are crucial for understanding disease dynamics, such as malaria and dengue fever [2]. This
+application is key for predicting disease outbreaks and devising control strategies [11]. In
+economics, the model has been adapted to represent competitive market dynamics [28].
+Specifically, it has been applied to model competition between firms, where one firm acts
+as the ”predator” and the other as the ”prey” in terms of market share [19]. Additionally,
+the model has been used to study resource allocation in various economic sectors, providing insights into market stability and the long-term behavior of competing entities [23].
+In cell biology, the Lotka-Volterra model helps represent interactions between different cell
+types, such as infected and uninfected cells, to understand infection dynamics within populations [10]. It has been used to simulate viral infections, examining interactions between
+virus-infected cells and immune cells [21] [20]. These insights are crucial for developing
+effective treatments, vaccines, and for understanding how infections spread and persist
+within populations. In engineering, the Lotka-Volterra model is employed to simulate systems with two interacting components, such as the balance between supply and demand
+or resource allocation in networks. For example, in power grid management, the model
+describes the interactions between energy supply and consumption [25] [26]. Similarly,
+in communication networks, it has been used to represent traffic flow, where competing entities (such as data packets) interact and influence overall network performance [3]
+[4] [5]. These applications illustrate how predator-prey dynamics govern systems in which
+104
+
+Sapkota and Khattri: Numerical Solutions of Non-Linear Systems of ODES...
+competition or cooperation between components drives the overall behavior of the system.
+Finally, the Lotka-Volterra model can also be applied to understand social behavior dynamics, such as interactions between competing social groups, ideologies, or cultures [17].
+It has been adapted for use in neural networks to study the dynamics of interacting components in complex systems [22]. This broad applicability across various fields highlights
+the model’s versatility in describing complex interactions beyond its original ecological
+context.
+
+3. Analytical Methods
+Despite the increasing applications of the Lotka-Volterra model, no closed-form analytical
+solution for this predator-prey system has been established in the literature [24]. The
+Equation (1) is recognized as conservative, meaning that its solutions must exhibit periodic behavior and do not have a simple expression in terms of the usual trigonometric
+functions; however, the exact analytical expressions for these solutions remain unknown
+[24]. In this section, we will first discuss the theoretical background of the Ritz method
+also known as principle of harmonic balance, followed by its application to the LV system,
+as demonstrated in [8].
+3.1. Theoretical Background of Ritz Method. The Ritz method provides an approximate solution, x(t), to the equation
+ẍ + f (x) = 0
+by ensuring that the functional
+Z tb
+F (x, ẋ, t) dt
+
+J=
+ta
+
+is minimized. Here, F (x, ẋ, t) is selected such that the solution to the minimum of J,
+governed by the Euler-Lagrange equation, corresponds to the differential equation we aim
+to solve:
+
+
+d ∂F
+∂F
+−
+= ẍ + f (x) = E(x) = 0.
+∂x
+dt ∂ ẋ
+The approximate solution x(t) is expressed as
+X
+x(t) =
+ai φi (t)
+where the φi (t) are a linearly independent set chosen based on prior knowledge of the
+differential equation’s behavior.
+To determine x̃(t), the functional J must be minimized with respect to the n coefficients
+ai . If we impose the condition that φi (ta ) = φi (tb ) = 0, or that φi is periodic over the
+interval ta − tb , we obtain the following conditions:
+Z tb
+φi (t)E(x̃(t)) dt = 0, i = 1, . . . , n
+ta
+
+For oscillatory systems, the Ritz method simplifies the process by eliminating the need
+to perform the n integrations mentioned earlier. When we take x̃(t) = A cos(ωt) as an
+approximate solution to ẍ + f (x) = 0, we find, through evaluating the integral, that the
+Ritz method is equivalent to selecting ω and A such that x̃(t) satisfies the differential
+equation, while disregarding the higher harmonics produced by f (x̃). In other words,
+105
+
+Everest Advances in Science and Technology (EAST). V.01, N.1, 2025
+
+ISSN: 3102-0410(print), 3102-0429(online)
+
+the sum of the coefficients of cos(ωt) in E(x̃(t)) must be zero. Similarly, when we take
+P
+x̃(t) = N
+n=0 an cos(nωt), we find that the coefficients of cos(nωt), for n = 0, . . . , N in
+E(x̃(t)) must balance to zero, which is the essence of the principle of harmonic balance.
+3.2. Ritz Method for Solving the LV System. Equilibrium points, also known as
+fixed points, are locations where both populations remain constant over time, meaning
+dy
+dx
+dt = 0 and dt = 0. To determine the equilibrium points, set the right-hand sides of the
+equation (1) equal to zero:
+αx − βxy = 0
+
+(2)
+
+δxy − γy = 0
+
+(3)
+
+The Equation (2), has two possibilities:
+(1) x = 0 (which is a trivial equilibrium corresponding to the extinction of the prey
+population),
+(2) α − βy = 0 ⇒ y = αβ (for a non-zero prey population).
+Similarly, Equation (3) has two possibilities
+(1) y = 0 (which corresponds to the extinction of the predator population),
+(2) δx − γ = 0 ⇒ x = γδ (for a non-zero predator population).
+Thus, the only non-trivial equilibrium point is:
+α
+γ
+x∗ = , y ∗ =
+δ
+β
+
+
+As a result, the system (2) has two singularities at the points (x, y) = (0, 0) and yδ , αβ .
+These are referred to as the prey and predator equilibrium populations. By linearizing
+around these singularities, we find that the first is a saddle point, while the second is a
+center. We will apply the equivalent Ritz method to derive approximate solutions in the
+vicinity of the center. We postulate an approximate solution of the form:
+x(t) = A + B cos(ωt) + C sin(ωt)
+(4)
+y(t) = D + E cos(ωt) + F sin(ωt)
+Differentiating with respect to t :
+dx
+= −Bω sin(ωt) + Cω cos(ωt)
+dt
+dy
+= −Eω sin(ωt) + F ω cos(ωt)
+dt
+Substituting these solutions into the differential equations (1), we get
+dx
+= α (A + B cos(ωt) + C sin(ωt))
+dt
+−β (A + B cos(ωt) + C sin(ωt)) (D + E cos(ωt) + F sin(ωt))
+−Bω sin(ωt) + Cω cos(ωt) = α (A + B cos(ωt) + C sin(ωt))
+−β (A + B cos(ωt) + C sin(ωt)) (D + E cos(ωt) + F sin(ωt))
+Similarly,
+dy
+= δ (A + B cos(ωt) + C sin(ωt))
+dt
+(D + E cos(ωt) + F sin(ωt)) − γ (D + E cos(ωt) + F sin(ωt))
+106
+
+(5)
+
+Sapkota and Khattri: Numerical Solutions of Non-Linear Systems of ODES...
+−Eω sin(ωt) + F ω cos(ωt) = δ (A + B cos(ωt) + C sin(ωt))
+(D + E cos(ωt) + F sin(ωt)) − γ (D + E cos(ωt) + F sin(ωt))
+By simplifying above equations and setting the coefficients of cos(ωt), sin(ωt), and the constant terms to zero, we derive a system of algebraic equations for the variables A, B, C, D, E, F,
+and ω as:
+αC − βAF − βCD + ωB = 0
+ωC − αB + βAE + βBD = 0
+
+ 
+
+βBE
+βCF
+αA − βAD −
+−
+=0
+2
+2
+ωE − γF + δAF + δCD = 0
+ωF + γE − δAE − δBD = 0
+
+ 
+
+δBE
+δCF
+δAD − γD +
++
+=0
+2
+2
+From the initial condition(t = 0), we have:
+x(0) = A + B
+y(0) = D + E
+It is clear that for the desired equilibrium point to be achieved, we must set A = γδ and
+D = αβ . By solving the system of equations above, we derive the following results:
+γ
+B = x(0) −
+δ
+
+ r
+α
+β
+γ
+C = ± y(0) −
+β
+δ
+α
+α
+(6)
+E = y(0) −
+β
+ r
+γ
+α
+δ
+F = ±(x(0) − )
+δ
+β
+γ
+√
+ω = ± γα
+Thus, the approximate solutions are given by
+ r
+γ
+γ
+α
+β
+γ
+√
+√
+x(t) = + (x(0) − ) cos( γαt) − (y(0) − )
+sin( γαt)
+δ
+δ
+β
+δ
+α
+ r
+α
+γ
+δ
+α
+α
+√
+√
+y(t) = + (y(0) − ) cos( γαt) + (x(0) − )
+sin( γαt)
+β
+β
+δ
+β
+γ
+
+(7)
+
+These equations describe an elliptical trajectory in the x-y plane with closed orbits around
+the equilibrium point.This indicates that the populations of both species oscillate in a
+cyclical manner, as predators and prey undergo regular cycles of growth and decline.
+3.3. Limitations of the Ritz Method. While the Ritz method provides an efficient
+way to approximate periodic or quasi-periodic behavior in nonlinear systems, it is subject
+to several important limitations:
+• The method assumes that the solution remains smooth and approximately harmonic. It performs well near equilibrium but fails under strongly nonlinear or
+chaotic conditions.
+• Discontinuities, sharp transitions, or external forcing (e.g., environmental perturbations) are not handled well due to the fixed functional form.
+107
+
+Everest Advances in Science and Technology (EAST). V.01, N.1, 2025
+
+ISSN: 3102-0410(print), 3102-0429(online)
+
+• The quality of the solution heavily depends on the choice of trial functions. Inadequate basis functions can lead to poor approximations even if residuals are
+minimized.
+Despite these limitations, the Ritz method remains valuable for gaining qualitative insight
+into the dynamics of ecological models and for validating trends observed in numerical
+simulations.
+3.4. Stability Analysis. To determine the stability of the equilibrium point, we linearize
+the system near the equilibrium using the Jacobian matrix. The Jacobian matrix is given
+by:
+! 
+
+∂
+∂
+(αx
+−
+βxy)
+(αx
+−
+βxy)
+α − βy −βx
+∂x
+∂y
+J=
+=
+∂
+∂
+δy
+δx − γ
+∂x (δxy − γy)
+∂y (δxy − γy)
+
+
+Jacobian at the equilibrium point γδ , αβ :
+
+
+ 
+α − β αβ
+−β γδ
+0 −β γδ
+J=
+=
+δ αβ
+0
+δ αβ
+δ γδ − γ
+The eigenvalues λ of the Jacobian matrix can be found by solving the characteristic equation:
+det(J − λI) = 0
+This simplifies to:
+α
+λ2 = βγ
+δ
+Thus, the eigenvalues are:
+r
+α
+λ = ± βγ
+δ
+Based on these eigenvalues, we can conclude the stability of the equilibrium points. If the
+real parts of the eigenvalues are positive, the equilibrium point is unstable, while if the real
+parts are negative, the equilibrium point is stable. The sign of the eigenvalues determines
+whether the system experiences growth or decay around the equilibrium point, providing
+insight into the system’s behavior over time.
+
+4. Numerical Methods
+4.1. Runge-Kutta Methods. The Runge-Kutta family of methods is one of the most
+commonly used numerical techniques for solving ODEs. The most widely known is the
+fourth-order Runge-Kutta method (RK4), which provides a good balance between computational efficiency and accuracy. The RK4 method is applied as follows to solve Equation (1):
+h
+xn+1 = xn + (L1 + 2L2 + 2L3 + L4 )
+(8)
+6
+where h is the step size and the terms L1 , L2 , L3 , L4 are defined as:
+L1 = f (tn , xn )
+
+
+h
+h
+L2 = f tn + , xn + L1
+2
+2
+
+
+h
+h
+L3 = f tn + , xn + L2
+2
+2
+L4 = f (tn + h, xn + hL3 )
+108
+
+Sapkota and Khattri: Numerical Solutions of Non-Linear Systems of ODES...
+h
+(k1 + 2k2 + 2k3 + k4 )
+6
+where h is the step size and the terms k1 , k2 , k3 , k4 are defined as:
+yn+1 = yn +
+
+(9)
+
+k1 = f (tn , yn )
+
+
+h
+h
+k2 = f tn + , yn + k1
+2
+2
+
+
+h
+h
+k3 = f tn + , yn + k2
+2
+2
+k4 = f (tn + h, yn + hk3 )
+In this method, the values k1 , k2 , k3 , k4 and L1 , L2 , L3 , L4 represent different approximations of the slope at various points within the interval, and their weighted average provides
+the next value in the solution.
+
+5. Results and Discussion
+5.1. Experimental Setup. The table below, Table 1, illustrates a sample dataset of lynx
+(predator) and hare (prey) populations, measured in thousands of individuals, recorded
+by the Hudson Bay Company from 1900 to 1935 in a forest in northern Canada [14], [9],
+[15]. The initial populations of the predator and prey, taken from the year 1900, were
+x(0) = 12.82 and y(0) = 7.13. The cyclical pattern (see Figure 2)in the data suggests
+periodic fluctuations in both species, which align with the theoretical predictions of the
+Lotka–Volterra equations. The observed trend indicates that as hare populations increase,
+lynx populations follow with a time lag, leading to periodic oscillations.
+Table 1. Samples of Lynx and Hares in thousands of individuals from
+year 1900 to 1935 [15]
+Year Hares Lynxes Year Hares Lynxes
+1900 12.82
+7.13
+1918
+4.50
+6.82
+1901
+4.72
+9.47
+1919 11.21
+3.19
+1902
+4.73
+14.86
+1920 56.60
+3.52
+1903 37.22
+31.47
+1921 69.63
+9.94
+1904 69.72
+60.57
+1922 77.74
+20.30
+1905 57.78
+63.51
+1923 80.53
+31.99
+1906 28.68
+54.70
+1924 73.38
+42.36
+1907 23.37
+6.30
+1925 36.93
+49.08
+1908 21.54
+3.41
+1926
+4.64
+53.99
+1909 26.34
+5.44
+1927
+2.54
+52.25
+1910 53.10
+11.65
+1928
+1.80
+37.70
+1911 68.48
+20.35
+1929
+2.39
+19.14
+1912 75.58
+32.88
+1930
+4.23
+6.98
+1913 57.92
+39.55
+1931 19.52
+8.31
+1914 40.97
+43.36
+1932 82.11
+16.01
+1915 24.95
+40.83
+1933 89.76
+24.82
+1916 12.59
+30.36
+1934 81.66
+29.70
+1917
+4.97
+17.18
+1935 15.76
+35.40
+109
+
+Everest Advances in Science and Technology (EAST). V.01, N.1, 2025
+
+ISSN: 3102-0410(print), 3102-0429(online)
+
+Lynx and Hare Populations
+Hare (Prey)
+Lynx (Predator)
+
+Population (in thousands)
+
+80
+
+60
+
+40
+
+20
+
+0
+1900
+
+1905
+
+1910
+
+1915
+
+1920
+
+1925
+
+1930
+
+1935
+
+Year
+
+Figure 2. Original Data
+Figure 2 illustrates the fluctuations in hare and lynx populations over time. The hare
+population (prey) exhibits a peak approximately every 10 years, followed by an increase in
+lynx population (predators). This phase shift is characteristic of predator-prey dynamics,
+where predator populations lag behind prey populations.
+5.2. Parameter Estimation via Simulated Annealing. To calibrate the parameters
+of the Lotka–Volterra predator–prey model using empirical data, we employed the Simulated Annealing (SA) optimization algorithm. SA is a stochastic global search technique inspired by the annealing process in metallurgy. It is particularly effective for
+non-convex optimization landscapes, making it suitable for nonlinear systems such as the
+Lotka–Volterra equations.
+5.2.1. Objective Function. Let xobs
+and yiobs denote the observed hare and lynx populai
+sim the simulated populations from the model.
+tions at discrete time points ti , and xsim
+i , yi
+The cost function is defined as the sum of squared residuals:
+N h
+i
+X
+obs 2
+sim
+obs 2
+J(α, β, γ, δ) =
+(xsim
+−
+x
+)
++
+(y
+−
+y
+)
+,
+(10)
+i
+i
+i
+i
+i=1
+
+which is minimized using SA to obtain the best-fitting parameters.
+We used the dual annealing optimizer from the SciPy library to minimize the objective
+function. The optimization was constrained within biologically plausible bounds:
+α ∈ [0.1, 1.0],
+
+β ∈ [0.001, 0.05],
+
+γ ∈ [0.1, 2.0],
+
+δ ∈ [0.001, 0.05].
+
+To assess robustness and repeatability, we repeated the SA optimization over five independent runs with different random seeds. For each run, the estimated parameters and
+RMSEs were recorded. RMSE was computed for each species as:
+v
+v
+u
+u
+N
+N
+u1 X
+u1 X
+t
+sim
+obs
+2
+RMSEy = t
+(11)
+RMSEx =
+(xi − xi ) ,
+(yisim − yiobs )2 .
+N
+N
+i=1
+
+The average parameter values and RMSEs over five runs were:
+110
+
+i=1
+
+Sapkota and Khattri: Numerical Solutions of Non-Linear Systems of ODES...
+Lynx and Hare Populations
+Hare (Actual)
+Hare (Predicted)
+
+80
+
+Lynx (Actual)
+
+Population (in thousands)
+
+Lynx (Predicted)
+60
+
+40
+
+20
+
+0
+1900
+
+1905
+
+1910
+
+1915
+
+1920
+
+1925
+
+1930
+
+1935
+
+Year
+
+Figure 3. Numerical solution of a trajectory using the Ritz Method
+Parameter
+
+Mean
+
+Std. Dev.
+
+α
+β
+γ
+δ
+
+0.6923
+0.0334
+0.7627
+0.0268
+
+0.0684
+0.0031
+0.0861
+0.0034
+
+Table 2. Simulated Annealing estimated parameter statistics (5 runs)
+By using the parameters found for α, β, γ, and δ, we have:
+(
+dx
+dt = 0.6923x(t) − 0.0333x(t)y(t)
+dy
+dt = 0.02684x(t)y(t) − 0.7627y(t)
+
+(12)
+
+The relatively small standard deviations across all parameters indicate that the SA algorithm produces stable and consistent parameter estimates.
+5.3. Ritz Method. Figure 3 illustrates the numerical solution of the Lotka–Volterra system obtained using the Ritz method, a physics-based numerical approach. The numerical
+predictions closely follow the observed data, capturing the cyclic nature of the population
+dynamics. The model effectively reproduces the observed trends, demonstrating the validity of the chosen numerical approach for solving non-linear ODEs. Despite the general
+agreement, discrepancies exist between the predicted and actual values, particularly in
+the amplitude of population peaks. These differences may stem from simplifying assumptions in the classical Lotka–Volterra equations, such as constant interaction coefficients
+and absence of external environmental influences. In reality, stochastic factors like climate
+variations, food availability, and disease outbreaks could contribute to deviations from the
+idealized model.
+5.4. RK 4th Order. The results of the LV systems simulation using the Runge-Kutta
+4th-order (RK4) method demonstrate (see Figure 4) the cyclical nature of predator-prey
+111
+
+Everest Advances in Science and Technology (EAST). V.01, N.1, 2025
+
+ISSN: 3102-0410(print), 3102-0429(online)
+
+Lynx and Hare Populations
+Hare (Actual)
+Hare (Predicted)
+
+80
+
+Lynx (Actual)
+
+Population (in thousands)
+
+Lynx (Predicted)
+60
+
+40
+
+20
+
+0
+1900
+
+1905
+
+1910
+
+1915
+
+1920
+
+1925
+
+1930
+
+1935
+
+Year
+
+Figure 4. Numerical solution of a trajectory using the RK4 Method
+interactions. The figure compares the actual population data of lynx and hares with the
+numerically predicted values over a series of years. The RK4 method effectively captures
+the oscillatory behavior of both species, where the prey population (hares) increases first,
+followed by a delayed rise in the predator population (lynx), after which both decline in a
+continuous cycle. The predicted results align well with the actual data, indicating that the
+RK4 method provides an accurate numerical approximation of the nonlinear LV equations.
+While the general trends are well-represented, minor deviations exist, likely due to environmental factors not accounted for in the classical model, parameter estimation uncertainties, or natural fluctuations in the real-world data. Despite these discrepancies, the
+RK4 method produces smooth and stable numerical solutions, demonstrating its reliability in modeling complex ecological interactions. These results reinforce the importance of
+numerical methods for solving nonlinear ODEs, especially when analytical solutions are
+impractical. The presence of multiple trajectories corresponding to different initial predator population values suggests that the system’s behavior depends on initial conditions but
+follows a stable, repeating pattern. The variation in initial predator populations (e.g., y
+= 4.0, y = 41.7, y = 7.4, etc.) affects the trajectory, but all orbits remain closed, reinforcing the theoretical prediction that predator-prey interactions remain bounded in a limit
+cycle rather than leading to extinction. To conclude, the phase-space plot confirms the
+characteristic oscillatory behavior of the LV model, demonstrating that populations follow
+periodic cycles rather than reaching a steady equilibrium. The RK4 method effectively
+captures this dynamic, providing accurate numerical approximations of the nonlinear system.
+
+5.5. RMSE Comparison Between RK4 and Ritz Methods. To evaluate the accuracy of the numerical methods used to model the Hare and Lynx population dynamics, we
+computed the Root Mean Square Error (RMSE) for both species using the RK4 (RungeKutta 4th order) and Ritz methods. The RMSE quantifies the difference between the
+112
+
+Sapkota and Khattri: Numerical Solutions of Non-Linear Systems of ODES...
+observed data and the numerical simulation results. Table 3 summarizes the RMSE values for both populations:
+Method
+RMSE (Hare) RMSE (Lynx)
+RK4 Method
+21.77
+15.54
+Ritz Method
+27.20
+21.98
+Table 3. Comparison of RMSE for Hare and Lynx Populations Using
+RK4 and Ritz Methods
+As shown in the table, the RK4 method yields lower RMSE values for both the hare
+and lynx populations compared to the Ritz method. Specifically, the RMSE for the hare
+population is 21.77 using RK4 and 27.20 using Ritz, while for the lynx population, the
+RMSE is 15.54 for RK4 and 21.98 for Ritz.
+This indicates that the RK4 method provides a more accurate numerical approximation
+of the observed population data. The higher errors in the Ritz method may be attributed
+to its weaker handling of rapid nonlinear dynamics present in predator-prey systems.
+Therefore, for problems involving sharp oscillations or highly dynamic systems like the
+Lotka-Volterra model, the RK4 method appears to be more suitable.
+
+6. Conclusion and Future Research
+The numerical analysis of the LV predator-prey model using the RK4 and Ritz methods demonstrates the effectiveness of numerical techniques in solving nonlinear differential
+equations. The results show that both methods successfully capture the oscillatory behavior of predator and prey populations, as confirmed by the time-series and phase-space
+plots. The RK4 method provides a stable and accurate numerical solution, while the Ritz
+method offers an alternative approach with comparable results. The phase plots reveal the
+characteristic limit cycles of predator-prey interactions, reinforcing the theoretical predictions of the LV model. However, due to inaccurate parameter estimations of α, β, δ and γ
+using the maximum likelihood method, the model can sometimes deviate from real-world
+data. While the general predator-prey cycles remain intact, small errors in parameter
+estimation can lead to discrepancies in amplitude and phase shifts between predicted and
+actual population trends.
+Future research can focus on improving parameter estimation techniques to enhance the
+model’s predictive accuracy. AI-based approaches, such as machine learning and deep
+learning, could be integrated to optimize the estimation of system parameters (α, β, δ and
+γ) reducing uncertainties in model predictions. Additionally, extending the classical LV
+system to include ecological complexities like seasonal effects, environmental changes, and
+stochastic influences could provide a more realistic representation of predator-prey dynamics. Further comparisons between numerical methods, including higher-order solvers and
+hybrid AI-numerical techniques, could enhance computational efficiency and stability. Investigating these advanced modeling strategies would offer deeper insights into ecosystem
+interactions and contribute to better wildlife conservation and resource management.
+
+References
+[1] H. A. Adamu, “Mathematical analysis of predator-prey model with two preys and one predator,”
+International Journal of Engineering and Applied Sciences, vol. 5, no. 11, pp. 17–23, 2018.
+
+113
+
+Everest Advances in Science and Technology (EAST). V.01, N.1, 2025
+
+ISSN: 3102-0410(print), 3102-0429(online)
+
+[2] R. M. Anderson and R. M. May, Infectious diseases of humans: dynamics and control. Oxford
+university press, 1991.
+[3] P. Antoniou and A. Pitsillides, “Congestion control in autonomous decentralized networks based on
+the lotka-volterra competition model,” in International Conference on Artificial Neural Networks.
+Springer, 2009, pp. 986–996.
+[4] ——, “A bio-inspired approach for streaming applications in wireless sensor networks based on the
+lotka–volterra competition model,” Computer Communications, vol. 33, no. 17, pp. 2039–2047, 2010.
+[5] ——, “Congestion control in wireless sensor networks based on the lotka volterra competition model,”
+in Biologically Inspired Networking and Sensing: Algorithms and Architectures. IGI Global, 2012,
+pp. 158–181.
+[6] M. Beals, L. Gross, and S. Harrell, “Predator-prey dynamics: Lotka-volterra,” 1999, accessed: 202503-09. [Online]. Available: http://www.tiem.utk.edu/∼gross/bioed/bealsmodules/predator-prey.html
+[7] W. E. Boyce and R. C. DiPrima, Elementary differential equations and boundary value problems,
+7th ed. John Wiley & sons, 2001.
+[8] J. BREARLEY and A. Soudack, “Approximate solutions to the lotka-volterra competition equations,”
+International Journal of Control, vol. 27, no. 6, pp. 933–941, 1978.
+[9] E. M. Cardona, C. A. Ramı́rez-Vanegas, and J. R. G. Granada, “Numerical Solution of the
+Lotka-Volterra Stochastic Differential Equation,” Statistics, Optimization & Information Computing,
+2025. [Online]. Available: http://www.iapress.org/index.php/soic/article/view/2307
+[10] J. D. Davis, D. V. Olivença, S. P. Brown, and E. O. Voit, “Methods of quantifying interactions among
+populations using lotka-volterra models,” Frontiers in Systems Biology, vol. 2, p. 1021897, 2022.
+[11] O. Diekmann and J. A. P. Heesterbeek, Mathematical epidemiology of infectious diseases: model
+building, analysis and interpretation. John Wiley & Sons, 2000, vol. 5.
+[12] F. N. Egerton, “History of ecological sciences, part 54: Succession, community, and continuum,”
+Bulletin of the Ecological Society of America, vol. 96, no. 3, pp. 426–474, 2015.
+[13] C. M. Evans and G. Findley, “Analytic solutions to the lotka-volterra model for sustained chemical
+oscillations,” 1998.
+[14] M. E. Gilpin, “Do hares eat lynx?” The American Naturalist, vol. 107, no. 957, pp. 727–730, 1973.
+[15] D. Hundley, “Math 250: Introduction to mathematical logic,” 2003, accessed: 2025-06-07. [Online].
+Available: http://people.whitman.edu/∼hundledr/courses/M250F03/M250.html
+[16] C. Jost, G. Devulder, J. A. Vucetich, R. O. Peterson, and R. Arditi, “The wolves of isle royale display
+scale-invariant satiation and ratio-dependent predation on moose,” Journal of Animal Ecology, pp.
+809–816, 2005.
+[17] M. Kawira, C. G. Ngari, and S. Karanja, “A theoretical model of corruption using modified lotka
+volterra model: A perspective of interactions between staff and students,” 2020.
+[18] A. J. Lotka, “Analytical note on certain rhythmic relations in organic systems,” Proceedings of the
+National Academy of Sciences, vol. 6, no. 7, pp. 410–415, 1920.
+[19] A. Marasco, A. Picucci, and A. Romano, “Market share dynamics using lotka–volterra models,”
+Technological forecasting and social change, vol. 105, pp. 49–62, 2016.
+[20] R. M. May and R. M. Anderson, “The transmission dynamics of human immunodeficiency virus
+(hiv),” Philosophical Transactions of the Royal Society of London. B, Biological Sciences, vol. 321,
+no. 1207, pp. 565–607, 1988.
+[21] A. Meça, A. Uka, and M. Ali, “Parameter estimation of three cell interaction using lotka volterra differential equations,” in 2021 International Conference on Computing, Networking, Telecommunications
+& Engineering Sciences Applications (CoNTESA). IEEE, 2021, pp. 12–18.
+[22] V. Noonburg, “A neural network modeled by an adaptive lotka-volterra system,” SIAM Journal on
+Applied Mathematics, vol. 49, no. 6, pp. 1779–1792, 1989.
+[23] M. Passarella, “The paradox of tranquility revisited. a lotka-volterra model of the financial instability,”
+Rivista italiana degli economisti, vol. 15, no. 1, pp. 69–104, 2010.
+[24] D. Y. Regalado and E. C. Castillano, “Approximate analytic solution to the lotka-volterra predator
+â€“prey differential equations model,” Journal of Higher Education Research Disciplines, vol. 4, no. 1,
+pp. 38–47, 2019.
+[25] J. Toyoda and H. Saitoh, “Proposal of an open-electric-energy-network (oeen) to realize cooperative
+operations of iou and ipp,” in Proceedings of EMPD’98. 1998 International Conference on Energy
+Management and Power Delivery (Cat. No. 98EX137), vol. 1. IEEE, 1998, pp. 218–222.
+[26] B. H. Tsai, “Forecasting ic design industrial clustering from taiwan to mainland of china using fourdimensional competitive lotka-volterra equations,” International Journal of Innovative Computing,
+Information and Control, vol. 20, no. 1, pp. 249–261, 2024.
+
+114
+
+Sapkota and Khattri: Numerical Solutions of Non-Linear Systems of ODES...
+[27] V. Volterra, “Fluctuations in the abundance of a species considered mathematically,” Nature, vol.
+118, no. 2972, pp. 558–560, 1926.
+[28] S.-Y. Wang, W.-M. Chen, and X.-L. Wu, “Competition analysis on industry populations based on a
+three-dimensional lotka–volterra model,” Discrete Dynamics in Nature and Society, vol. 2021, no. 1,
+p. 9935127, 2021.
+[29] P. J. Wangersky, “Lotka-volterra population models,” Annual Review of Ecology and Systematics,
+vol. 9, pp. 189–218, 1978.
+
+115
+
+
