@@ -167,6 +167,19 @@ lynx_rk4_yearly   = y_rk4(year_idx);
 hare_abm_yearly   = x_abm(year_idx);
 lynx_abm_yearly   = y_abm(year_idx);
 
+% RMSE for each method
+rmse_hare_euler = sqrt(mean((hare_euler_yearly - hares_obs).^2));
+rmse_lynx_euler = sqrt(mean((lynx_euler_yearly - lynx_obs).^2));
+
+rmse_hare_heun = sqrt(mean((hare_heun_yearly - hares_obs).^2));
+rmse_lynx_heun = sqrt(mean((lynx_heun_yearly - lynx_obs).^2));
+
+rmse_hare_rk4 = sqrt(mean((hare_rk4_yearly - hares_obs).^2));
+rmse_lynx_rk4 = sqrt(mean((lynx_rk4_yearly - lynx_obs).^2));
+
+rmse_hare_abm = sqrt(mean((hare_abm_yearly - hares_obs).^2));
+rmse_lynx_abm = sqrt(mean((lynx_abm_yearly - lynx_obs).^2));
+
 % Display combined comparison table
 fprintf('Lotka-Volterra Comparison (h = %.1f)\n', h);
 fprintf('Order shown: paper value, Euler value, modified Euler value, RK4 value, ABM value\n\n');
@@ -178,3 +191,13 @@ for i = 1:length(years)
         years(i), hares_obs(i), hare_euler_yearly(i), hare_heun_yearly(i), hare_rk4_yearly(i), hare_abm_yearly(i), ...
         lynx_obs(i), lynx_euler_yearly(i), lynx_heun_yearly(i), lynx_rk4_yearly(i), lynx_abm_yearly(i));
 end
+
+% Separate RMSE comparison table
+fprintf('\nRMSE Comparison Table\n');
+fprintf('---------------------------------------------\n');
+fprintf(' Method                 RMSE_Hare   RMSE_Lynx\n');
+fprintf('---------------------------------------------\n');
+fprintf(' Euler                  %9.4f   %9.4f\n', rmse_hare_euler, rmse_lynx_euler);
+fprintf(' Modified Euler (Heun)  %9.4f   %9.4f\n', rmse_hare_heun, rmse_lynx_heun);
+fprintf(' RK4                    %9.4f   %9.4f\n', rmse_hare_rk4, rmse_lynx_rk4);
+fprintf(' AB4-AM4                %9.4f   %9.4f\n', rmse_hare_abm, rmse_lynx_abm);
