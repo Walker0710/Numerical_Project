@@ -157,6 +157,23 @@ The RMSE tells us how far off our predictions were from the actual historical tr
 
 ---
 
+## Ecological & Mathematical Inferences
+What can we learn from analyzing the data and our simulation methods?
+
+1. **The Biological Phase Lag:** 
+   The data clearly shows that the lynx population peaks *after* the hare population peaks. This makes perfect biological sense: as hares become abundant, lynx have a surplus of food, allowing them to reproduce rapidly. However, this takes time, creating a delayed reaction (a "lag") between the two population waves.
+
+2. **The Numerical Limitations of First-Order Methods:**
+   Looking at the RMSE table, the **Explicit Euler** method performed terribly compared to the others (RMSE ~43.0 for Hares vs ~21.5 for the others). Because the populations change so rapidly in nonlinear curves, drawing a straight line to the next point (Euler's approach) consistently overshoots the true curves, causing massive compounding errors over 35 years.
+
+3. **The Power of Higher-Order Solvers:**
+   **Modified Euler**, **RK4**, **AB4-AM4**, and **ODE45** all achieved incredibly similar, highly optimized error scores (around ~21.5 for Hares and ~15.7 for Lynx). This tells us that beyond a certain mathematical precision (2nd to 4th order), the remaining error isn't due to bad math—it's due to the fact that real biology is messy! Variables like weather, disease, and migration affect real hares and lynx, which our pristine mathematical model cannot account for. 
+
+4. **The Phase Cycle (Closed Loops):**
+   If you plot Hares vs Lynx (ignoring time), it creates a circular "orbit" or phase loop. This loop proves that the system is mathematically stable and cyclical. As long as outside forces don't violently interfere, neither population will go extinct; they are locked in a perpetual, balanced dance of boom and bust.
+
+---
+
 ## Visualizations
 
 ### 1. Paper vs Explicit Euler
@@ -181,4 +198,8 @@ The RMSE tells us how far off our predictions were from the actual historical tr
 
 ### 6. Comprehensive Comparison (All Methods)
 ![Comprehensive Comparison (All Methods)](images/all.png)
+<br><br><br>
+
+### 7. Phase Cycle Plot (Hares vs Lynx)
+![Phase Cycle Plot](images/phase.png)
 <br><br><br>

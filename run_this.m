@@ -231,7 +231,7 @@ title('Lynx Population: Paper vs Euler');
 xlabel('Year'); ylabel('Population (thousands)');
 legend('Observed (Paper)', 'Euler');
 grid on;
-saveas(gcf, 'plot1_paper_vs_euler.png');
+drawnow;
 
 % 2. Paper vs Modified Euler (Heun)
 figure('Name', 'Paper vs Modified Euler', 'NumberTitle', 'off');
@@ -250,7 +250,7 @@ title('Lynx Population: Paper vs Modified Euler');
 xlabel('Year'); ylabel('Population (thousands)');
 legend('Observed (Paper)', 'Modified Euler');
 grid on;
-saveas(gcf, 'plot2_paper_vs_modified_euler.png');
+drawnow;
 
 % 3. Paper vs RK4
 figure('Name', 'Paper vs RK4', 'NumberTitle', 'off');
@@ -269,7 +269,7 @@ title('Lynx Population: Paper vs RK4');
 xlabel('Year'); ylabel('Population (thousands)');
 legend('Observed (Paper)', 'RK4');
 grid on;
-saveas(gcf, 'plot3_paper_vs_rk4.png');
+drawnow;
 
 % 4. Paper vs AB4-AM4
 figure('Name', 'Paper vs AB4-AM4', 'NumberTitle', 'off');
@@ -288,7 +288,7 @@ title('Lynx Population: Paper vs AB4-AM4');
 xlabel('Year'); ylabel('Population (thousands)');
 legend('Observed (Paper)', 'AB4-AM4');
 grid on;
-saveas(gcf, 'plot4_paper_vs_ab4_am4.png');
+drawnow;
 
 % 5. Paper vs ODE45
 figure('Name', 'Paper vs ODE45', 'NumberTitle', 'off');
@@ -307,7 +307,7 @@ title('Lynx Population: Paper vs ODE45');
 xlabel('Year'); ylabel('Population (thousands)');
 legend('Observed (Paper)', 'ODE45');
 grid on;
-saveas(gcf, 'plot5_paper_vs_ode45.png');
+drawnow;
 
 % 6. Paper vs All Methods
 figure('Name', 'Paper vs All Methods', 'NumberTitle', 'off');
@@ -334,4 +334,23 @@ title('Lynx Population: All Methods vs Paper');
 xlabel('Year'); ylabel('Population (thousands)');
 legend('Observed', 'Euler', 'Modified Euler', 'RK4', 'AB4-AM4', 'ODE45', 'Location', 'best');
 grid on;
-saveas(gcf, 'plot6_paper_vs_all_methods.png');
+drawnow;
+
+% 7. Phase Cycle Plot (Hare vs Lynx)
+figure('Name', 'Phase Cycle Plot: Hare vs Lynx', 'NumberTitle', 'off');
+plot(hares_obs, lynx_obs, 'k-o', 'LineWidth', 1.5, 'MarkerFaceColor', 'k'); hold on;
+plot(x_euler, y_euler, 'b-', 'LineWidth', 1.5);
+plot(x_heun, y_heun, 'g-', 'LineWidth', 1.5);
+plot(x_rk4, y_rk4, 'm-', 'LineWidth', 1.5);
+plot(x_abm, y_abm, 'c-', 'LineWidth', 1.5);
+
+% For ODE45, evaluate smoothly over the full time range
+[~, Y_ode45_fine] = ode45(f_ode45, [years(1) years(end)], [12.82; 7.13]);
+plot(Y_ode45_fine(:,1), Y_ode45_fine(:,2), 'y-', 'LineWidth', 1.5);
+
+title('Phase Cycle Plot: Hare vs Lynx Populations');
+xlabel('Hare Population (thousands)');
+ylabel('Lynx Population (thousands)');
+legend('Observed', 'Euler', 'Modified Euler', 'RK4', 'AB4-AM4', 'ODE45', 'Location', 'best');
+grid on;
+drawnow;
